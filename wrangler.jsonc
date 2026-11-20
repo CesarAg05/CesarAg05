@@ -1,0 +1,6 @@
+// Configuração da Cloudflare: publica a pasta site/ como site estático (sem servidor).
+{
+  "name": "ferramentas-mei",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": "./site" }
+}

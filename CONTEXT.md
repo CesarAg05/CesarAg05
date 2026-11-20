@@ -10,7 +10,7 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 
 ## Arquitetura (planejada)
 - HTML + JavaScript puro (sem build, sem dependências) + node:test. Hugo só se o site crescer.
-- Hospedagem: Cloudflare Pages ou GitHub Pages, subdomínio gratuito.
+- Hospedagem: Cloudflare Workers (static assets, wrangler.jsonc), subdomínio workers.dev gratuito. Deploy automático a cada push.
 - Analytics: Cloudflare Web Analytics (sem cookies). SEO: Google Search Console.
 - Vendas: Hotmart/Kiwify (taxa só por venda). Sem backend, sem segredos no repo.
 - IA usada só no desenvolvimento, nunca em runtime (sem custo de API).

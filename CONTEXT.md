@@ -34,4 +34,4 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Tabelas legais mudam todo ano (salário mínimo, DAS, teto MEI).
 
 ## Próxima tarefa
-Cadastrar no Google Search Console (verificação por arquivo HTML em site/); depois planilha MEI (produto).
+Planilha de gestão MEI (produto pago). Search Console opcional: só o dono pode (login Google); sitemap.xml + robots.txt já publicados.

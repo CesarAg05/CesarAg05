@@ -22,7 +22,7 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Ver local: `npm run serve` → http://localhost:8080
 
 ## Pendências
-- Push bloqueado: Claude sem acesso ao GitHub CesarAg05/CesarAg05 (dono precisa conectar/instalar o app).
+- Código no GitHub (branch claude/digital-business-ai-plan-9238fj). Repo ainda sem branch main.
 - Ferramentas 2 (limite MEI) e 3 (quanto sobra) — dependem de tabelas oficiais atualizadas.
 - Produto: planilha de gestão MEI. Nome definitivo do site.
 - Publicação (Cloudflare/GitHub Pages) — exige autorização do dono.
@@ -33,4 +33,4 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Tabelas legais mudam todo ano (salário mínimo, DAS, teto MEI).
 
 ## Próxima tarefa
-Resolver acesso ao GitHub e fazer push; depois escolher nome e publicar (com autorização).
+Publicar no Cloudflare Pages (dono cria a conta). Nome mantido: "Ferramentas para MEI".

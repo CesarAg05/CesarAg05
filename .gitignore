@@ -1,0 +1,12 @@
+# Segredos e configurações locais — nunca versionar
+.env
+.env.*
+*.pem
+*.key
+.claude/settings.local.json
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/

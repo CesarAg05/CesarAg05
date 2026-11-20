@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gerador de recibo grátis em PDF</title><meta name="description" content="Gere um recibo de pagamento simples com valor por extenso e salve em PDF. Grátis e sem cadastro."><link rel="stylesheet" href="style.css"></head><body>
+<header><a href="index.html">Ferramentas para MEI</a></header>
+<main><h1>Gerador de recibo</h1>
+<form id="form" class="card nao-imprimir" novalidate>
+<label for="valor">Valor (R$)</label><input id="valor" type="number" inputmode="decimal" min="0.01" step="0.01" required>
+<label for="pagador">Recebi de</label><input id="pagador" maxlength="120" required>
+<label for="referente">Referente a</label><textarea id="referente" rows="2" maxlength="300" required></textarea>
+<label for="emitente">Seu nome ou razão social</label><input id="emitente" maxlength="120" required>
+<label for="documento">CPF ou CNPJ (opcional)</label><input id="documento" maxlength="20">
+<label for="cidade">Cidade</label><input id="cidade" maxlength="80">
+<label for="data">Data</label><input id="data" type="date" required>
+<button type="submit">Gerar recibo</button>
+</form>
+<p id="erro" class="erro nao-imprimir" hidden></p>
+<section id="area" hidden>
+<div id="recibo">
+<h2 style="text-align:center">RECIBO</h2>
+<p style="text-align:right"><strong id="r-valor"></strong></p>
+<p>Recebi de <strong id="r-pagador"></strong> a importância de <strong id="r-valor-ext"></strong>, referente a <span id="r-referente"></span>.</p>
+<p id="r-local-data" style="margin-top:32px"></p>
+<p style="margin-top:56px;text-align:center">______________________________<br><span id="r-emitente"></span><br><span id="r-documento"></span></p>
+</div>
+<button class="nao-imprimir" id="imprimir" type="button">Salvar em PDF / imprimir</button>
+<p class="aviso nao-imprimir">Na janela de impressão, escolha "Salvar como PDF" como destino.</p>
+</section>
+</main>
+<script type="module" src="js/recibo.js"></script>
+<footer>Ferramentas gratuitas e independentes, sem vínculo com o governo. Os resultados são estimativas e não substituem um contador. · <a href="privacidade.html">Privacidade</a></footer></body></html>

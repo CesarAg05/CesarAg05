@@ -9,17 +9,23 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Publicação, contas, pagamentos e permissões: só com aprovação humana.
 
 ## Arquitetura (planejada)
-- Hugo (site) + JavaScript puro (ferramentas) + node:test (testes).
+- HTML + JavaScript puro (sem build, sem dependências) + node:test. Hugo só se o site crescer.
 - Hospedagem: Cloudflare Pages ou GitHub Pages, subdomínio gratuito.
 - Analytics: Cloudflare Web Analytics (sem cookies). SEO: Google Search Console.
 - Vendas: Hotmart/Kiwify (taxa só por venda). Sem backend, sem segredos no repo.
 - IA usada só no desenvolvimento, nunca em runtime (sem custo de API).
 
 ## Implementado
-- Nada ainda. Plano aprovado em 2026-11-20.
+- Plano, nicho (MEI/autônomos) e lista de ferramentas aprovados em 2026-11-20.
+- site/: index, preco.html (calculadora de preço), recibo.html (recibo + extenso + PDF via impressão), privacidade.html.
+- Lógica testável em site/js/*-logica.js e extenso.js; testes em tests/ (`npm test`). CI em .github/workflows/ci.yml.
+- Ver local: `npm run serve` → http://localhost:8080
 
 ## Pendências
-- Dono aprovar lista de ferramentas/produto da Etapa 0.
+- Push bloqueado: Claude sem acesso ao GitHub CesarAg05/CesarAg05 (dono precisa conectar/instalar o app).
+- Ferramentas 2 (limite MEI) e 3 (quanto sobra) — dependem de tabelas oficiais atualizadas.
+- Produto: planilha de gestão MEI. Nome definitivo do site.
+- Publicação (Cloudflare/GitHub Pages) — exige autorização do dono.
 
 ## Riscos conhecidos
 - Tráfego SEO lento (6–12 meses).
@@ -27,4 +33,4 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Tabelas legais mudam todo ano (salário mínimo, DAS, teto MEI).
 
 ## Próxima tarefa
-Etapa 1: estrutura do repo, .gitignore, CI de testes, primeira ferramenta (após aprovação da Etapa 0).
+Resolver acesso ao GitHub e fazer push; depois escolher nome e publicar (com autorização).

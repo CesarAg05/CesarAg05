@@ -20,6 +20,7 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - site/: index, preco.html (calculadora de preço), recibo.html (recibo + extenso + PDF via impressão), privacidade.html.
 - Lógica testável em site/js/*-logica.js e extenso.js; testes em tests/ (`npm test`). CI em .github/workflows/ci.yml.
 - Ver local: `npm run serve` → http://localhost:8080
+- NO AR: https://ferramentas-mei.ferramentasmei.workers.dev (subdomínio neutro; nunca usar nome/e-mail do dono).
 
 ## Pendências
 - Código no GitHub (branch claude/digital-business-ai-plan-9238fj). Repo ainda sem branch main.
@@ -33,4 +34,4 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Tabelas legais mudam todo ano (salário mínimo, DAS, teto MEI).
 
 ## Próxima tarefa
-Publicar no Cloudflare Pages (dono cria a conta). Nome mantido: "Ferramentas para MEI".
+Cadastrar no Google Search Console (verificação por arquivo HTML em site/); depois planilha MEI (produto).

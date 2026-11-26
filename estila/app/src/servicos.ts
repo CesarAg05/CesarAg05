@@ -2,7 +2,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LADO_MINIATURA, adicionarAoHistorico, adicionarPeca, lerArmario, lerHistorico, lerPerfil, lerResposta, novoTamanho, perfilVazio, type ItemHistorico, type Ocasiao, type Peca, type Perfil } from './logica';
+import { LADO_MINIATURA, adicionarAoHistorico, adicionarPeca, lerArmario, lerHistorico, lerPerfil, lerResposta, lerVerificacao, novoTamanho, perfilVazio, type ItemHistorico, type Ocasiao, type Peca, type Perfil } from './logica';
 
 // Endereço do servidor. Em produção, defina EXPO_PUBLIC_API_URL (por exemplo no arquivo .env).
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8787';
@@ -33,19 +33,17 @@ export async function escolherFoto(origem: 'camera' | 'galeria', lado = 1024, co
   return { uri: out.uri, base64: out.base64 };
 }
 
-export async function analisar(foto: FotoPronta, ocasiao: Ocasiao | null, perfil: Perfil) {
+async function enviar(rota: string, corpo: unknown, tempoMs: number): Promise<unknown> {
   const controle = new AbortController();
-  const tempo = setTimeout(() => controle.abort(), 70_000);
+  const tempo = setTimeout(() => controle.abort(), tempoMs);
   try {
-    const r = await fetch(`${API_URL}/analisar`, {
+    const r = await fetch(`${API_URL}${rota}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imagem: foto.base64, ocasiao, perfil: perfilVazio(perfil) ? null : perfil }),
+      body: JSON.stringify(corpo),
       signal: controle.signal,
     });
-    let corpo: unknown;
-    try { corpo = await r.json(); } catch { throw new Error('O servidor não respondeu direito. Tente de novo.'); }
-    return lerResposta(corpo);
+    try { return await r.json(); } catch { throw new Error('O servidor não respondeu direito. Tente de novo.'); }
   } catch (e) {
     if (e instanceof Error && e.name === 'AbortError') throw new Error('Demorou demais. Verifique a internet e tente de novo.');
     if (e instanceof TypeError) throw new Error('Sem conexão com o servidor. Verifique a internet.');
@@ -53,6 +51,15 @@ export async function analisar(foto: FotoPronta, ocasiao: Ocasiao | null, perfil
   } finally {
     clearTimeout(tempo);
   }
+}
+
+export async function analisar(foto: FotoPronta, ocasiao: Ocasiao | null, perfil: Perfil) {
+  return lerResposta(await enviar('/analisar', { imagem: foto.base64, ocasiao, perfil: perfilVazio(perfil) ? null : perfil }, 70_000));
+}
+
+// A miniatura da peça vai ao servidor só para a IA conferir se é roupa. Lá ela não é guardada.
+export async function verificarPeca(miniatura: string) {
+  return lerVerificacao(await enviar('/verificar-peca', { imagem: miniatura.replace(/^data:image\/jpeg;base64,/, '') }, 40_000));
 }
 
 async function ler(chave: string) {
@@ -84,7 +91,7 @@ export async function salvarPerfil(p: Perfil) {
   await AsyncStorage.setItem(CHAVE_PERFIL, JSON.stringify(p));
 }
 
-// Armário: miniatura pequena (320 px) guardada só no aparelho. Nunca é enviada ao servidor.
+// Armário: miniatura pequena (320 px) guardada só no aparelho. Só sai dele para ser conferida (verificarPeca).
 export async function fotografarPeca(origem: 'camera' | 'galeria') {
   const f = await escolherFoto(origem, LADO_MINIATURA, 0.6);
   return f ? `data:image/jpeg;base64,${f.base64}` : null;

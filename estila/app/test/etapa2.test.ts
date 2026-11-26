@@ -50,3 +50,29 @@ test('armário valida peças salvas, conta por categoria e tem limite', () => {
   assert.throws(() => adicionarPeca(cheio, peca('x')), /até 60 peças/);
   assert.equal(adicionarPeca([], peca('x'))[0].id, 'x');
 });
+
+import { lerVerificacao, linksDeCompra, lerResposta } from '../src/logica.ts';
+
+test('links de compra usam endereços fixos e termo limpo', () => {
+  const l = linksDeCompra('Cinto <b>caramelo</b> https://mal.com');
+  assert.equal(l.length, 2);
+  assert.ok(l[0].url.startsWith('https://www.google.com/search?tbm=shop&q='));
+  assert.ok(l[1].url.startsWith('https://lista.mercadolivre.com.br/'));
+  assert.equal(l[1].url, 'https://lista.mercadolivre.com.br/cinto-b-caramelo-b-https-mal-com');
+  assert.ok(!l[0].url.includes('<'));
+  assert.deepEqual(linksDeCompra(''), []);
+  assert.deepEqual(linksDeCompra(undefined), []);
+});
+
+test('sugestões antigas sem termo de busca continuam funcionando', () => {
+  const r = lerResposta({ analise: { valido: true, nota: 8, sugestoes: [{ titulo: 't', detalhe: 'd' }] } });
+  assert.equal(r.analise.sugestoes[0].busca, '');
+});
+
+test('verificação de peça: roupa, não-roupa, modo demonstração e erro', () => {
+  assert.deepEqual(lerVerificacao({ verificado: true, peca: { e_roupa: true, categoria: 'calçado', cor: 'branco' } }), { tipo: 'roupa', categoria: 'calçado', cor: 'branco' });
+  assert.equal(lerVerificacao({ verificado: true, peca: { e_roupa: false, motivo: 'É um gato.' } }).tipo, 'nao-roupa');
+  assert.equal(lerVerificacao({ verificado: true, peca: { e_roupa: true, categoria: 'nave', cor: 'branco' } }).tipo, 'nao-roupa');
+  assert.equal(lerVerificacao({ demo: true, verificado: false, peca: null }).tipo, 'sem-verificacao');
+  assert.throws(() => lerVerificacao({ erro: 'Foto grande demais.' }), /grande demais/);
+});

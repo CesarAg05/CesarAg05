@@ -33,7 +33,7 @@ function Tela() {
   const [historico, setHistorico] = useState<ItemHistorico[]>([]);
   const [perfil, setPerfil] = useState<TPerfil>(PERFIL_VAZIO);
   const [pecas, setPecas] = useState<Peca[]>([]);
-  const [pedindoConsentimento, setPedindoConsentimento] = useState<null | 'camera' | 'galeria'>(null);
+  const [pendente, setPendente] = useState<null | (() => void)>(null);
 
   useEffect(() => {
     carregarHistorico().then(setHistorico);
@@ -41,8 +41,14 @@ function Tela() {
     carregarArmario().then(setPecas);
   }, []);
 
+  // Antes da primeira foto enviada (look ou peça), pede o consentimento e depois continua a ação.
+  async function comConsentimento(acao: () => void) {
+    if (await temConsentimento()) acao();
+    else setPendente(() => acao);
+  }
+
   async function iniciar(origem: 'camera' | 'galeria') {
-    if (!(await temConsentimento())) { setPedindoConsentimento(origem); return; }
+    if (!(await temConsentimento())) { setPendente(() => () => iniciar(origem)); return; }
     let foto: FotoPronta | null = null;
     try {
       foto = await escolherFoto(origem);
@@ -59,10 +65,10 @@ function Tela() {
   }
 
   async function aceitar() {
-    const origem = pedindoConsentimento;
+    const acao = pendente;
     await darConsentimento();
-    setPedindoConsentimento(null);
-    if (origem) iniciar(origem);
+    setPendente(null);
+    acao?.();
   }
 
   return (
@@ -78,7 +84,7 @@ function Tela() {
             voltar={() => setEstado({ tipo: 'inicio' })} irParaPerfil={() => setAba('perfil')} />
         )}
         {aba === 'armario' && (
-          <Armario pecas={pecas} guardar={async (p) => setPecas(await guardarPeca(p))} remover={async (id) => setPecas(await removerPeca(id))} />
+          <Armario pecas={pecas} comConsentimento={comConsentimento} guardar={async (p) => setPecas(await guardarPeca(p))} remover={async (id) => setPecas(await removerPeca(id))} />
         )}
         {aba === 'historico' && <Historico itens={historico} />}
         {aba === 'perfil' && (
@@ -97,17 +103,17 @@ function Tela() {
         ))}
       </View>
 
-      <Modal visible={pedindoConsentimento !== null} transparent animationType="none" onRequestClose={() => setPedindoConsentimento(null)}>
+      <Modal visible={pendente !== null} transparent animationType="none" onRequestClose={() => setPendente(null)}>
         <View style={s.veu}>
           <View style={s.dialogo}>
             <Text style={u.h2}>Antes da primeira foto</Text>
-            <Text style={u.p}>Para avaliar o look, a foto é enviada com segurança ao nosso servidor e analisada por inteligência artificial.</Text>
-            <Text style={u.item}>• A foto é apagada logo após a análise. Nada fica guardado.</Text>
+            <Text style={u.p}>Para avaliar o look ou conferir uma peça do armário, a foto é enviada com segurança ao nosso servidor e analisada por inteligência artificial.</Text>
+            <Text style={u.item}>• No servidor, a foto é descartada logo após a análise. Nada fica guardado lá.</Text>
             <Text style={u.item}>• Avaliamos só a roupa. Nunca o corpo, o rosto ou quem você é.</Text>
             <Text style={u.item}>• Localização e dados escondidos da foto são removidos antes do envio.</Text>
-            <Text style={u.item}>• Seu histórico fica só neste aparelho e você pode apagar quando quiser.</Text>
+            <Text style={u.item}>• Histórico e armário ficam só neste aparelho e você pode apagar quando quiser.</Text>
             <Botao texto="Concordo e continuar" onPress={aceitar} />
-            <Botao texto="Agora não" secundario onPress={() => setPedindoConsentimento(null)} />
+            <Botao texto="Agora não" secundario onPress={() => setPendente(null)} />
           </View>
         </View>
       </Modal>

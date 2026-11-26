@@ -1,5 +1,5 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { OCASIOES, amostraDeCor, formatarNota, perfilVazio, rotuloNota, type Analise, type Ocasiao, type Perfil } from '../logica';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { OCASIOES, amostraDeCor, formatarNota, linksDeCompra, perfilVazio, rotuloNota, type Analise, type Ocasiao, type Perfil } from '../logica';
 import type { FotoPronta } from '../servicos';
 import { Botao, C, Chip, Foto, SERIFA, u } from '../ui';
 
@@ -82,6 +82,7 @@ export function DetalheAnalise({ uri, analise }: { uri?: string; analise: Analis
         <View key={sg.titulo} style={u.cartao}>
           <Text style={u.cartaoTitulo}>{sg.titulo}</Text>
           <Text style={u.p}>{sg.detalhe}</Text>
+          <PecasReais busca={sg.busca} />
         </View>
       ))}
       {analise.combina_com.length > 0 && <Text style={u.nota}>Combina com: {analise.combina_com.join(', ')}</Text>}
@@ -89,7 +90,28 @@ export function DetalheAnalise({ uri, analise }: { uri?: string; analise: Analis
   );
 }
 
+function PecasReais({ busca }: { busca?: string }) {
+  const links = linksDeCompra(busca);
+  if (!links.length) return null;
+  return (
+    <View style={s.lojas}>
+      <Text style={s.lojasRotulo}>Ver peças reais: “{busca}”</Text>
+      <View style={u.chips}>
+        {links.map((l) => (
+          <Pressable key={l.loja} onPress={() => Linking.openURL(l.url).catch(() => {})} style={s.loja} accessibilityRole="link" accessibilityLabel={`Ver ${busca} no ${l.loja}`}>
+            <Text style={s.lojaTexto}>{l.loja} ↗</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
+  lojas: { marginTop: 6, gap: 8 },
+  lojasRotulo: { fontSize: 13, color: C.suave },
+  loja: { backgroundColor: '#fff', borderWidth: 1, borderColor: C.linha, borderRadius: 99, paddingVertical: 7, paddingHorizontal: 12 },
+  lojaTexto: { fontSize: 14, fontWeight: '600', color: C.cobalto },
   carregando: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 16 },
   notaFlutuante: { position: 'absolute', right: 14, top: 14, backgroundColor: '#fff', borderRadius: 18, paddingVertical: 10, paddingHorizontal: 14, alignItems: 'center' },
   notaCartao: { backgroundColor: C.painel, borderRadius: 18, paddingVertical: 18, alignItems: 'center' },

@@ -5,7 +5,7 @@ export type Ocasiao = (typeof OCASIOES)[number];
 
 export const LADO_MAXIMO = 1024; // a foto é reduzida antes de sair do aparelho
 
-export interface Sugestao { titulo: string; detalhe: string }
+export interface Sugestao { titulo: string; detalhe: string; busca?: string }
 export interface Analise {
   valido: boolean;
   motivo: string;
@@ -43,8 +43,9 @@ export function lerResposta(j: unknown): { demo: boolean; analise: Analise } {
       estilo: typeof a.estilo === 'string' ? a.estilo : '',
       cores: strs(a.cores),
       pontos_fortes: strs(a.pontos_fortes),
-      sugestoes: (Array.isArray(a.sugestoes) ? a.sugestoes : []).filter(
-        (s): s is Sugestao => !!s && typeof s.titulo === 'string' && typeof s.detalhe === 'string'),
+      sugestoes: (Array.isArray(a.sugestoes) ? a.sugestoes : [])
+        .filter((s): s is Sugestao => !!s && typeof s.titulo === 'string' && typeof s.detalhe === 'string')
+        .map((s) => ({ titulo: s.titulo, detalhe: s.detalhe, busca: limparBusca(s.busca) })),
       combina_com: strs(a.combina_com),
     },
   };
@@ -185,4 +186,38 @@ export function amostraDeCor(nome: string): string {
   for (const p of palavras) if (NOMES_CORES[p]) return NOMES_CORES[p];
   for (const p of nome.toLowerCase().split(/\s+/)) if (NOMES_CORES[p]) return NOMES_CORES[p];
   return '#c9c4be';
+}
+
+// ---------- Peças reais: links de busca em lojas ----------
+// O termo vem da IA, então é limpo de novo aqui e entra só como texto de busca em endereços fixos.
+export function limparBusca(v: unknown): string {
+  if (typeof v !== 'string') return '';
+  return v.normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N} -]+/gu, ' ').replace(/\s+/g, ' ').trim().slice(0, 60).trim();
+}
+
+export function linksDeCompra(busca: unknown): { loja: string; url: string }[] {
+  const termo = limparBusca(busca);
+  if (termo.length < 3) return [];
+  return [
+    { loja: 'Google Shopping', url: `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(termo)}` },
+    { loja: 'Mercado Livre', url: `https://lista.mercadolivre.com.br/${encodeURIComponent(termo.replace(/ /g, '-'))}` },
+  ];
+}
+
+// ---------- Armário: resposta da verificação de peça ----------
+export type Verificacao =
+  | { tipo: 'roupa'; categoria: Categoria; cor: Cor }
+  | { tipo: 'nao-roupa'; motivo: string }
+  | { tipo: 'sem-verificacao' }; // modo demonstração: IA desligada
+
+export function lerVerificacao(j: unknown): Verificacao {
+  const r = j as { erro?: unknown; verificado?: unknown; peca?: Record<string, unknown> | null };
+  if (!r || typeof r !== 'object') throw new Error('Resposta inválida do servidor.');
+  if (typeof r.erro === 'string') throw new Error(r.erro);
+  if (r.verificado !== true) return { tipo: 'sem-verificacao' };
+  const p = r.peca;
+  if (p && p.e_roupa === true && (CATEGORIAS as readonly string[]).includes(p.categoria as string) && (CORES as readonly string[]).includes(p.cor as string)) {
+    return { tipo: 'roupa', categoria: p.categoria as Categoria, cor: p.cor as Cor };
+  }
+  return { tipo: 'nao-roupa', motivo: typeof p?.motivo === 'string' && p.motivo ? p.motivo : 'Esta foto não parece ser de uma peça de roupa.' };
 }

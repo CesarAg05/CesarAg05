@@ -8,10 +8,11 @@ Plano completo (pesquisa, etapas, custos): https://claude.ai/artifact/JPk9WTtp8a
 
 - `app/`: o aplicativo, com quatro abas:
   - **Avaliar:** foto e nota do look, com consentimento antes da primeira foto.
-  - **Armário:** fotos das peças, com categoria e cor, guardadas só no aparelho (até 60).
+  - **Armário:** fotos das peças, guardadas só no aparelho (até 60). Só entram roupas, calçados e acessórios: a IA confere cada foto e já sugere categoria e cor.
   - **Histórico:** lista dos looks avaliados; tocar num deles abre a avaliação completa.
   - **Meu estilo:** resumo da evolução (média, melhor nota, estilo e cores mais usados), quiz de estilo e privacidade.
 - O quiz de estilo é enviado junto com a foto e personaliza as sugestões da IA.
+- Cada sugestão traz links "Ver peças reais" (Google Shopping e Mercado Livre) com um termo de busca escrito pela IA.
 - `server/`: servidor na Cloudflare que recebe a foto, valida e pede a análise à IA (Claude).
 - **Sem a chave da IA, o servidor responde em modo demonstração** (resultado de exemplo, custo zero).
 
@@ -24,7 +25,9 @@ Plano completo (pesquisa, etapas, custos): https://claude.ai/artifact/JPk9WTtp8a
 | App | A resposta do servidor é conferida campo a campo antes de aparecer na tela. |
 | Servidor | Aceita só `POST /analisar` com JSON, só JPEG, até cerca de 1,5 MB. A ocasião precisa estar numa lista fixa. |
 | Servidor | O perfil de estilo só aceita valores de listas fixas, iguais às do app (um teste confere). Assim, ninguém consegue mandar instruções para a IA pelo perfil. |
-| App | Perfil, histórico e armário ficam só no aparelho. As fotos do armário nunca são enviadas. "Apagar meus dados" apaga tudo. |
+| App | Perfil, histórico e armário ficam só no aparelho. A foto de cada peça vai uma vez ao servidor (`/verificar-peca`, até 150 KB) para a IA conferir se é roupa, e é descartada. "Apagar meus dados" apaga tudo. |
+| Servidor e app | O termo de busca das lojas é limpo duas vezes (só letras, números, espaço e hífen, até 60 caracteres) e entra só como texto num endereço fixo da loja. |
+| Testes | O caminho real da IA é testado simulando a API, sem custo: recusa, valores fora da lista e termos maliciosos. |
 | Servidor | Até 10 análises por minuto por IP. Sites não autorizados (CORS) são bloqueados. |
 | Servidor | A chave da IA fica só como segredo da Cloudflare, nunca no app nem no código. |
 | Servidor | A foto não é gravada nem registrada em log. Os logs guardam só o tipo do erro. |

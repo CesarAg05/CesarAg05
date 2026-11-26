@@ -76,7 +76,8 @@ export function Perfil(p: { perfil: TPerfil; historico: ItemHistorico[]; salvar:
       <Text style={u.item}>• Sem cadastro: não pedimos nome, e-mail nem telefone.</Text>
       <Text style={u.item}>• A foto do look é reduzida no aparelho, enviada por conexão segura, analisada e descartada.</Text>
       <Text style={u.item}>• A IA avalia só as roupas. Não fazemos reconhecimento facial.</Text>
-      <Text style={u.item}>• Perfil, histórico e armário ficam só neste aparelho. As fotos do armário nunca saem dele.</Text>
+      <Text style={u.item}>• Perfil, histórico e armário ficam guardados só neste aparelho. A foto de cada peça é enviada uma vez, para a IA conferir se é roupa, e descartada no servidor.</Text>
+      <Text style={u.item}>• Os links "Ver peças reais" abrem lojas externas, que têm suas próprias políticas de privacidade.</Text>
       {apagado ? (
         <Text style={[u.p, { marginTop: 16 }]}>Pronto: tudo foi apagado deste aparelho.</Text>
       ) : confirmar ? (

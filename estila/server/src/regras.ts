@@ -79,6 +79,42 @@ export function validarOcasiao(o: unknown): Ocasiao | null {
   throw new ErroEntrada(400, 'Ocasião inválida.');
 }
 
+// Perfil de estilo: só valores destas listas (iguais às do app; um teste confere).
+// Por serem fixas, ninguém consegue enfiar instruções para a IA pelo perfil.
+export const ESTILOS = ['clássico', 'casual', 'minimalista', 'esportivo', 'romântico', 'streetwear', 'boho', 'elegante', 'criativo', 'alternativo'] as const;
+export const CORES = ['preto', 'branco', 'cinza', 'bege', 'marrom', 'azul', 'marinho', 'verde', 'vermelho', 'rosa', 'amarelo', 'laranja', 'roxo', 'estampas'] as const;
+export const EVITAR = ['decotes', 'transparência', 'saltos', 'peças justas', 'cores fortes', 'estampas', 'shorts e saias curtas'] as const;
+export interface Perfil { estilos: string[]; cores: string[]; evitar: string[] }
+
+function listaFixa(v: unknown, permitidos: readonly string[], max: number, nome: string): string[] {
+  if (v === undefined || v === null) return [];
+  if (!Array.isArray(v) || v.length > max || !v.every((x) => typeof x === 'string' && permitidos.includes(x))) {
+    throw new ErroEntrada(400, `Perfil inválido (${nome}).`);
+  }
+  return [...new Set(v as string[])];
+}
+
+export function validarPerfil(p: unknown): Perfil | null {
+  if (p === undefined || p === null) return null;
+  if (typeof p !== 'object' || Array.isArray(p)) throw new ErroEntrada(400, 'Perfil inválido.');
+  const o = p as Record<string, unknown>;
+  const extras = Object.keys(o).filter((k) => !['estilos', 'cores', 'evitar'].includes(k));
+  if (extras.length) throw new ErroEntrada(400, 'Perfil inválido.');
+  const perfil = { estilos: listaFixa(o.estilos, ESTILOS, 3, 'estilos'), cores: listaFixa(o.cores, CORES, 5, 'cores'), evitar: listaFixa(o.evitar, EVITAR, EVITAR.length, 'evitar') };
+  return perfil.estilos.length || perfil.cores.length || perfil.evitar.length ? perfil : null;
+}
+
+export function montarPedido(ocasiao: Ocasiao | null, perfil: Perfil | null): string {
+  const partes = [ocasiao ? `Avalie este look para a ocasião: ${ocasiao}.` : 'Avalie este look.'];
+  if (perfil) {
+    partes.push('Preferências que a pessoa informou (use para personalizar as sugestões, sem mudar a nota por gosto pessoal):');
+    if (perfil.estilos.length) partes.push(`- estilos que gosta: ${perfil.estilos.join(', ')}`);
+    if (perfil.cores.length) partes.push(`- cores favoritas: ${perfil.cores.join(', ')}`);
+    if (perfil.evitar.length) partes.push(`- prefere evitar: ${perfil.evitar.join(', ')}`);
+  }
+  return partes.join('\n');
+}
+
 const texto = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const lista = (v: unknown, n: number, max: number) =>
   (Array.isArray(v) ? v : []).map((x) => texto(x, max)).filter(Boolean).slice(0, n);

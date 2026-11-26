@@ -4,9 +4,14 @@ App grátis que avalia o look a partir de uma foto: nota, estilo, cores, pontos 
 
 Plano completo (pesquisa, etapas, custos): https://claude.ai/artifact/JPk9WTtp8a4E3SuFiBF7LW
 
-## Estado atual: etapa 1, versão de teste
+## Estado atual: etapas 1 e 2, versão de teste
 
-- `app/`: o aplicativo, com três abas (Avaliar, Histórico e Privacidade) e consentimento antes da primeira foto.
+- `app/`: o aplicativo, com quatro abas:
+  - **Avaliar:** foto e nota do look, com consentimento antes da primeira foto.
+  - **Armário:** fotos das peças, com categoria e cor, guardadas só no aparelho (até 60).
+  - **Histórico:** lista dos looks avaliados; tocar num deles abre a avaliação completa.
+  - **Meu estilo:** resumo da evolução (média, melhor nota, estilo e cores mais usados), quiz de estilo e privacidade.
+- O quiz de estilo é enviado junto com a foto e personaliza as sugestões da IA.
 - `server/`: servidor na Cloudflare que recebe a foto, valida e pede a análise à IA (Claude).
 - **Sem a chave da IA, o servidor responde em modo demonstração** (resultado de exemplo, custo zero).
 
@@ -18,6 +23,8 @@ Plano completo (pesquisa, etapas, custos): https://claude.ai/artifact/JPk9WTtp8a
 | App | A foto não é salva. O histórico guarda só notas e sugestões, no próprio aparelho, com botão "Apagar meus dados". |
 | App | A resposta do servidor é conferida campo a campo antes de aparecer na tela. |
 | Servidor | Aceita só `POST /analisar` com JSON, só JPEG, até cerca de 1,5 MB. A ocasião precisa estar numa lista fixa. |
+| Servidor | O perfil de estilo só aceita valores de listas fixas, iguais às do app (um teste confere). Assim, ninguém consegue mandar instruções para a IA pelo perfil. |
+| App | Perfil, histórico e armário ficam só no aparelho. As fotos do armário nunca são enviadas. "Apagar meus dados" apaga tudo. |
 | Servidor | Até 10 análises por minuto por IP. Sites não autorizados (CORS) são bloqueados. |
 | Servidor | A chave da IA fica só como segredo da Cloudflare, nunca no app nem no código. |
 | Servidor | A foto não é gravada nem registrada em log. Os logs guardam só o tipo do erro. |

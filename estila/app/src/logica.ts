@@ -19,9 +19,9 @@ export interface Analise {
 export interface ItemHistorico { id: string; data: string; ocasiao: Ocasiao | null; demo: boolean; analise: Analise }
 
 // Calcula o novo tamanho mantendo a proporção; nunca aumenta a foto.
-export function novoTamanho(largura: number, altura: number): { width?: number; height?: number } | null {
-  if (largura <= LADO_MAXIMO && altura <= LADO_MAXIMO) return null;
-  return largura >= altura ? { width: LADO_MAXIMO } : { height: LADO_MAXIMO };
+export function novoTamanho(largura: number, altura: number, lado = LADO_MAXIMO): { width?: number; height?: number } | null {
+  if (largura <= lado && altura <= lado) return null;
+  return largura >= altura ? { width: lado } : { height: lado };
 }
 
 const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
@@ -74,6 +74,103 @@ export function lerHistorico(texto: string | null): ItemHistorico[] {
   } catch {
     return [];
   }
+}
+
+// ---------- Etapa 2: perfil de estilo ----------
+// Listas fixas: o servidor aceita só estes valores (as mesmas listas existem em server/src/regras.ts e um teste confere).
+export const ESTILOS = ['clássico', 'casual', 'minimalista', 'esportivo', 'romântico', 'streetwear', 'boho', 'elegante', 'criativo', 'alternativo'] as const;
+export const CORES = ['preto', 'branco', 'cinza', 'bege', 'marrom', 'azul', 'marinho', 'verde', 'vermelho', 'rosa', 'amarelo', 'laranja', 'roxo', 'estampas'] as const;
+export const EVITAR = ['decotes', 'transparência', 'saltos', 'peças justas', 'cores fortes', 'estampas', 'shorts e saias curtas'] as const;
+export type Estilo = (typeof ESTILOS)[number];
+export type Cor = (typeof CORES)[number];
+export type Evitar = (typeof EVITAR)[number];
+export interface Perfil { estilos: Estilo[]; cores: Cor[]; evitar: Evitar[] }
+export const PERFIL_VAZIO: Perfil = { estilos: [], cores: [], evitar: [] };
+
+const filtrar = <T extends string>(v: unknown, lista: readonly T[], max: number): T[] =>
+  Array.isArray(v) ? [...new Set(v.filter((x): x is T => (lista as readonly string[]).includes(x)))].slice(0, max) : [];
+
+export function lerPerfil(texto: string | null): Perfil {
+  if (!texto) return PERFIL_VAZIO;
+  try {
+    const v = JSON.parse(texto);
+    return { estilos: filtrar(v?.estilos, ESTILOS, 3), cores: filtrar(v?.cores, CORES, 5), evitar: filtrar(v?.evitar, EVITAR, EVITAR.length) };
+  } catch {
+    return PERFIL_VAZIO;
+  }
+}
+
+export function alternar<T>(lista: T[], valor: T, max: number): T[] {
+  if (lista.includes(valor)) return lista.filter((x) => x !== valor);
+  return lista.length >= max ? lista : [...lista, valor];
+}
+
+export const perfilVazio = (p: Perfil) => !p.estilos.length && !p.cores.length && !p.evitar.length;
+
+// ---------- Etapa 2: resumo do histórico ----------
+export interface Resumo {
+  total: number;
+  media: number;
+  melhor: number;
+  estiloFrequente: string | null;
+  cores: { nome: string; vezes: number }[];
+  recentes: number[]; // últimas notas, da mais antiga para a mais nova
+  tendencia: number; // média das 3 últimas menos a média das 3 anteriores
+}
+
+const contar = (valores: string[]) => {
+  const m = new Map<string, number>();
+  for (const v of valores) { const k = v.trim().toLowerCase(); if (k) m.set(k, (m.get(k) ?? 0) + 1); }
+  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+};
+const mediaDe = (ns: number[]) => (ns.length ? ns.reduce((a, b) => a + b, 0) / ns.length : 0);
+
+export function resumir(itens: ItemHistorico[]): Resumo | null {
+  const validos = itens.filter((i) => i.analise.valido);
+  if (!validos.length) return null;
+  const notas = validos.map((i) => i.analise.nota); // mais novo primeiro
+  const recentes = notas.slice(0, 10).reverse();
+  const ult3 = notas.slice(0, 3), ant3 = notas.slice(3, 6);
+  return {
+    total: validos.length,
+    media: Math.round(mediaDe(notas) * 10) / 10,
+    melhor: Math.max(...notas),
+    estiloFrequente: contar(validos.map((i) => i.analise.estilo))[0]?.[0] ?? null,
+    cores: contar(validos.flatMap((i) => i.analise.cores)).slice(0, 5).map(([nome, vezes]) => ({ nome, vezes })),
+    recentes,
+    tendencia: ant3.length ? Math.round((mediaDe(ult3) - mediaDe(ant3)) * 10) / 10 : 0,
+  };
+}
+
+// ---------- Etapa 2: armário (fotos das peças, só no aparelho) ----------
+export const CATEGORIAS = ['parte de cima', 'parte de baixo', 'vestido / macacão', 'casaco', 'calçado', 'acessório'] as const;
+export type Categoria = (typeof CATEGORIAS)[number];
+export interface Peca { id: string; categoria: Categoria; cor: Cor; miniatura: string; data: string }
+export const LIMITE_ARMARIO = 60;
+export const LADO_MINIATURA = 320;
+
+export function lerArmario(texto: string | null): Peca[] {
+  if (!texto) return [];
+  try {
+    const v = JSON.parse(texto);
+    return Array.isArray(v)
+      ? v.filter((p) => p && typeof p.id === 'string' && typeof p.miniatura === 'string' && p.miniatura.startsWith('data:image/jpeg;base64,')
+          && (CATEGORIAS as readonly string[]).includes(p.categoria) && (CORES as readonly string[]).includes(p.cor))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function adicionarPeca(lista: Peca[], peca: Peca): Peca[] {
+  if (lista.length >= LIMITE_ARMARIO) throw new Error(`O armário comporta até ${LIMITE_ARMARIO} peças. Remova alguma para adicionar.`);
+  return [peca, ...lista];
+}
+
+export function contarPorCategoria(lista: Peca[]): Record<Categoria, number> {
+  const r = Object.fromEntries(CATEGORIAS.map((c) => [c, 0])) as Record<Categoria, number>;
+  for (const p of lista) r[p.categoria]++;
+  return r;
 }
 
 const NOMES_CORES: Record<string, string> = {

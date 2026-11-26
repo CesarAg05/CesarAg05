@@ -1,7 +1,7 @@
 // Servidor do Estila (Cloudflare Worker). Recebe a foto, valida, pede a análise à IA e devolve o resultado.
 // A foto nunca é gravada nem registrada em log: existe só na memória durante a requisição.
 import Anthropic from '@anthropic-ai/sdk';
-import { ErroEntrada, ESQUEMA_ANALISE, INSTRUCOES, LIMITE_BYTES_CORPO, analiseDemo, decodificarImagem, limparAnalise, validarOcasiao } from './regras.ts';
+import { ErroEntrada, ESQUEMA_ANALISE, INSTRUCOES, LIMITE_BYTES_CORPO, analiseDemo, decodificarImagem, limparAnalise, montarPedido, validarOcasiao, validarPerfil, type Perfil } from './regras.ts';
 
 interface Env {
   ANTHROPIC_API_KEY?: string; // segredo: `wrangler secret put ANTHROPIC_API_KEY`. Sem ele, modo demonstração.
@@ -31,10 +31,10 @@ function cabecalhosCors(req: Request, env: Env): Record<string, string> | null {
   return { 'Access-Control-Allow-Origin': origem, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '600', Vary: 'Origin' };
 }
 
-async function analisarComIA(env: Env, imagem: string, ocasiao: string | null) {
+async function analisarComIA(env: Env, imagem: string, ocasiao: Parameters<typeof montarPedido>[0], perfil: Perfil | null) {
   const modelo = env.MODELO || 'claude-opus-5-5';
   const cliente = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 60_000 });
-  const pedido = ocasiao ? `Avalie este look para a ocasião: ${ocasiao}.` : 'Avalie este look.';
+  const pedido = montarPedido(ocasiao, perfil);
   const msg = await cliente.beta.messages.create({
     model: modelo,
     max_tokens: 4000,
@@ -75,13 +75,14 @@ export default {
 
       const texto = await req.text();
       if (texto.length > LIMITE_BYTES_CORPO) throw new ErroEntrada(413, 'Foto grande demais.');
-      let corpo: { imagem?: unknown; ocasiao?: unknown };
+      let corpo: { imagem?: unknown; ocasiao?: unknown; perfil?: unknown };
       try { corpo = JSON.parse(texto); } catch { throw new ErroEntrada(400, 'JSON inválido.'); }
       decodificarImagem(corpo.imagem);
       const ocasiao = validarOcasiao(corpo.ocasiao);
+      const perfil = validarPerfil(corpo.perfil);
 
       if (!env.ANTHROPIC_API_KEY) return resposta({ demo: true, analise: analiseDemo(ocasiao) }, 200, cors);
-      const analise = await analisarComIA(env, corpo.imagem as string, ocasiao);
+      const analise = await analisarComIA(env, corpo.imagem as string, ocasiao, perfil);
       return resposta({ demo: false, analise }, 200, cors);
     } catch (e) {
       if (e instanceof ErroEntrada) return resposta({ erro: e.message }, e.status, cors);

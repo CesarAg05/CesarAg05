@@ -44,5 +44,7 @@ App grátis de avaliação de looks por foto com IA. Detalhes em estila/README.m
 - Divisão: Claude constrói o app; ChatGPT só para tarefas simples. Sem monetização por enquanto.
 - Prioridade máxima: segurança. Banco de dados e política de privacidade só quando abrir para outras pessoas.
 - Feito: etapa 1 (app Expo em estila/app + servidor Cloudflare em estila/server, modo demonstração sem chave da IA).
+- Feito: etapa 2 (2026-11-26): quiz de estilo enviado à IA (listas fixas), resumo de evolução, armário local (miniaturas 320px), detalhe do histórico. Tudo só no aparelho, sem contas.
 - Pendente (decisão do dono): ligar a IA (custo por análise, escolher modelo e limite), repositório próprio, nome definitivo.
-- Próximas etapas: 2 perfil de estilo/histórico, 3 vitrine social (moderação, 18+), 4 provador virtual + lojas.
+- Ideia anotada para depois: IA monta looks com as peças do armário (exige enviar miniaturas: pedir consentimento).
+- Próximas etapas: 3 vitrine social (exige contas, banco de dados, política de privacidade, moderação, 18+), 4 provador virtual + lojas.

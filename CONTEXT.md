@@ -46,5 +46,6 @@ App grátis de avaliação de looks por foto com IA. Detalhes em estila/README.m
 - Feito: etapa 1 (app Expo em estila/app + servidor Cloudflare em estila/server, modo demonstração sem chave da IA).
 - Feito: etapa 2 (2026-11-26): quiz de estilo enviado à IA (listas fixas), resumo de evolução, armário local (miniaturas 320px), detalhe do histórico. Tudo só no aparelho, sem contas.
 - Pendente (decisão do dono): ligar a IA (custo por análise, escolher modelo e limite), repositório próprio, nome definitivo.
+- Feito (2026-11-26): armário só aceita roupa (IA confere em /verificar-peca), sugestões com links de peças reais (Google Shopping, Mercado Livre), teste E2E com fotos reais do Wikimedia Commons em estila/testes-reais (fotos fora do git, créditos no README).
 - Ideia anotada para depois: IA monta looks com as peças do armário (exige enviar miniaturas: pedir consentimento).
 - Próximas etapas: 3 vitrine social (exige contas, banco de dados, política de privacidade, moderação, 18+), 4 provador virtual + lojas.

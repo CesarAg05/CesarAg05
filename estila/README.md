@@ -44,7 +44,7 @@ cd estila/server && npm install && npm run dev
 cd estila/app && npm install && npx expo start
 ```
 
-Testes: `npm test` e `npm run check` em cada pasta (também rodam no CI).
+Testes: `npm test` e `npm run check` em cada pasta (também rodam no CI). Há também um teste de ponta a ponta com fotos reais de licença livre: veja `testes-reais/README.md`.
 
 ## Ligar a IA de verdade (decisão do dono, tem custo)
 

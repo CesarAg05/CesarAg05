@@ -2,10 +2,13 @@
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { analiseDemo } from './demo';
 import { LADO_MINIATURA, adicionarAoHistorico, adicionarPeca, lerArmario, lerHistorico, lerPerfil, lerResposta, lerVerificacao, novoTamanho, perfilVazio, type ItemHistorico, type Ocasiao, type Peca, type Perfil } from './logica';
 
 // Endereço do servidor. Em produção, defina EXPO_PUBLIC_API_URL (por exemplo no arquivo .env).
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8787';
+// Com EXPO_PUBLIC_API_URL=demo o app funciona sozinho, sem servidor, com resultados de exemplo.
+const DEMO_LOCAL = API_URL === 'demo';
 
 const CHAVE_CONSENTIMENTO = 'estila:consentimento:v1';
 const CHAVE_HISTORICO = 'estila:historico:v1';
@@ -54,11 +57,13 @@ async function enviar(rota: string, corpo: unknown, tempoMs: number): Promise<un
 }
 
 export async function analisar(foto: FotoPronta, ocasiao: Ocasiao | null, perfil: Perfil) {
+  if (DEMO_LOCAL) { await new Promise((r) => setTimeout(r, 900)); return lerResposta({ demo: true, analise: analiseDemo(ocasiao) }); }
   return lerResposta(await enviar('/analisar', { imagem: foto.base64, ocasiao, perfil: perfilVazio(perfil) ? null : perfil }, 70_000));
 }
 
 // A miniatura da peça vai ao servidor só para a IA conferir se é roupa. Lá ela não é guardada.
 export async function verificarPeca(miniatura: string) {
+  if (DEMO_LOCAL) return lerVerificacao({ demo: true, verificado: false, peca: null });
   return lerVerificacao(await enviar('/verificar-peca', { imagem: miniatura.replace(/^data:image\/jpeg;base64,/, '') }, 40_000));
 }
 

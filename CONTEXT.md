@@ -19,6 +19,7 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Plano, nicho (MEI/autônomos) e lista de ferramentas aprovados em 2026-11-20.
 - site/: index, preco.html (calculadora de preço), recibo.html (recibo + extenso + PDF via impressão), privacidade.html.
 - Lógica testável em site/js/*-logica.js e extenso.js; testes em tests/ (`npm test`). CI em .github/workflows/ci.yml.
+- App instalável (PWA), aprovado em 2026-11-26: site/manifest.webmanifest, site/sw.js (offline; aumentar VERSAO a cada mudança no site), site/js/pwa.js (botão "Instalar app" + dica iPhone), ícones em site/icons/. Testes em tests/pwa.test.js.
 - Ver local: `npm run serve` → http://localhost:8080
 - NO AR: https://ferramentas-mei.ferramentasmei.workers.dev (subdomínio neutro; nunca usar nome/e-mail do dono).
 
@@ -35,3 +36,16 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 
 ## Próxima tarefa
 Planilha de gestão MEI (produto pago). Search Console opcional: só o dono pode (login Google); sitemap.xml + robots.txt já publicados.
+
+---
+
+# Estila (segundo projeto, iniciado em 2026-11-26)
+App grátis de avaliação de looks por foto com IA. Detalhes em estila/README.md; plano em https://claude.ai/artifact/JPk9WTtp8a4E3SuFiBF7LW
+- Divisão: Claude constrói o app; ChatGPT só para tarefas simples. Sem monetização por enquanto.
+- Prioridade máxima: segurança. Banco de dados e política de privacidade só quando abrir para outras pessoas.
+- Feito: etapa 1 (app Expo em estila/app + servidor Cloudflare em estila/server, modo demonstração sem chave da IA).
+- Feito: etapa 2 (2026-11-26): quiz de estilo enviado à IA (listas fixas), resumo de evolução, armário local (miniaturas 320px), detalhe do histórico. Tudo só no aparelho, sem contas.
+- Pendente (decisão do dono): ligar a IA (custo por análise, escolher modelo e limite), repositório próprio, nome definitivo.
+- Feito (2026-11-26): armário só aceita roupa (IA confere em /verificar-peca), sugestões com links de peças reais (Google Shopping, Mercado Livre), teste E2E com fotos reais do Wikimedia Commons em estila/testes-reais (fotos fora do git, créditos no README).
+- Ideia anotada para depois: IA monta looks com as peças do armário (exige enviar miniaturas: pedir consentimento).
+- Próximas etapas: 3 vitrine social (exige contas, banco de dados, política de privacidade, moderação, 18+), 4 provador virtual + lojas.

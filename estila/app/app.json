@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Estila",
+    "slug": "estila",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.estila"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FF4F3A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "app.estila"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "Estila",
+      "themeColor": "#FF4F3A"
+    },
+    "scheme": "estila",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "O Estila usa a câmera para fotografar seu look e avaliar as roupas.",
+          "photosPermission": "O Estila acessa a foto que você escolher para avaliar o look.",
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}

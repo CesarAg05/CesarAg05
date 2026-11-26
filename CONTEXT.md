@@ -36,3 +36,13 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 
 ## Próxima tarefa
 Planilha de gestão MEI (produto pago). Search Console opcional: só o dono pode (login Google); sitemap.xml + robots.txt já publicados.
+
+---
+
+# Estila (segundo projeto, iniciado em 2026-11-26)
+App grátis de avaliação de looks por foto com IA. Detalhes em estila/README.md; plano em https://claude.ai/artifact/JPk9WTtp8a4E3SuFiBF7LW
+- Divisão: Claude constrói o app; ChatGPT só para tarefas simples. Sem monetização por enquanto.
+- Prioridade máxima: segurança. Banco de dados e política de privacidade só quando abrir para outras pessoas.
+- Feito: etapa 1 (app Expo em estila/app + servidor Cloudflare em estila/server, modo demonstração sem chave da IA).
+- Pendente (decisão do dono): ligar a IA (custo por análise, escolher modelo e limite), repositório próprio, nome definitivo.
+- Próximas etapas: 2 perfil de estilo/histórico, 3 vitrine social (moderação, 18+), 4 provador virtual + lojas.

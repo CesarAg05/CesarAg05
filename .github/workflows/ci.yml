@@ -13,3 +13,19 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+  estila:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pasta: [estila/server, estila/app]
+    defaults:
+      run:
+        working-directory: ${{ matrix.pasta }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run check
+      - run: npm test

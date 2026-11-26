@@ -19,6 +19,7 @@ Site estático de ferramentas gratuitas para MEI/autônomos (atrai tráfego org�
 - Plano, nicho (MEI/autônomos) e lista de ferramentas aprovados em 2026-11-20.
 - site/: index, preco.html (calculadora de preço), recibo.html (recibo + extenso + PDF via impressão), privacidade.html.
 - Lógica testável em site/js/*-logica.js e extenso.js; testes em tests/ (`npm test`). CI em .github/workflows/ci.yml.
+- App instalável (PWA), aprovado em 2026-11-26: site/manifest.webmanifest, site/sw.js (offline; aumentar VERSAO a cada mudança no site), site/js/pwa.js (botão "Instalar app" + dica iPhone), ícones em site/icons/. Testes em tests/pwa.test.js.
 - Ver local: `npm run serve` → http://localhost:8080
 - NO AR: https://ferramentas-mei.ferramentasmei.workers.dev (subdomínio neutro; nunca usar nome/e-mail do dono).
 
